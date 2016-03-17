@@ -127,42 +127,56 @@ JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
 JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, width, height, fontSize) {
     if (isNaN(fontSize)) fontSize = 20;
 
-    var yOffset = height * 0.25;
+    var borderWidth = 4;
+    var newWidth = width - borderWidth;
+    var newHeight = height - borderWidth;
+
+    // Create border
+    var graphics = game.add.graphics(0, 0);
+    graphics.lineStyle(borderWidth, 0x000, 1);
+    graphics.drawRect(xPos, yPos, newWidth, newHeight);
+
+    // Set new (x,y) to inside the border.
+    var newXPos = xPos + borderWidth;
+    var newYPos = yPos + borderWidth;
+
+    var textYOffset = newHeight * 0.25;
+    var menuSelectorWidth = 20; // width of bitmapText(..., "testfont", "--", 20)
 
     // Add Text
     // 1st Row
     var menu1Str = "Menu Item 1";
-    this.menu1 = game.add.bitmapText(xPos, yPos + yOffset, "testfont", menu1Str, fontSize);
+    this.menu1 = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menu1Str, fontSize);
     this.menu1.anchor.x = 0;
     this.menu1.anchor.y = 0.5;
-    this.menu1Selector = game.add.bitmapText(xPos, yPos + yOffset, "testfont", SELECTED_INDICATOR, fontSize);
-    this.menu1Selector.anchor.x = 1;
+    this.menu1Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
+    this.menu1Selector.anchor.x = 0;
     this.menu1Selector.anchor.y = 0.5;
 
     var menu2Str = "Menu Item 2";
-    this.menu2 = game.add.bitmapText(xPos + width * 0.5, yPos + yOffset, "testfont", menu2Str, fontSize);
+    this.menu2 = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menu2Str, fontSize);
     this.menu2.anchor.x = 0;
     this.menu2.anchor.y = 0.5;
-    this.menu2Selector = game.add.bitmapText(xPos + width * 0.5, yPos + yOffset, "testfont", SELECTED_INDICATOR, fontSize);
-    this.menu2Selector.anchor.x = 1;
+    this.menu2Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
+    this.menu2Selector.anchor.x = 0;
     this.menu2Selector.anchor.y = 0.5;
 
     // 2nd Row...
-    yOffset *= 3;
+    textYOffset *= 3;
     var menu3Str = "Menu Item 3";
-    this.menu3 = game.add.bitmapText(xPos, yPos + yOffset, "testfont", menu3Str, fontSize);
+    this.menu3 = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menu3Str, fontSize);
     this.menu3.anchor.x = 0;
     this.menu3.anchor.y = 0.5;
-    this.menu3Selector = game.add.bitmapText(xPos, yPos + yOffset, "testfont", SELECTED_INDICATOR, fontSize);
-    this.menu3Selector.anchor.x = 1;
+    this.menu3Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
+    this.menu3Selector.anchor.x = 0;
     this.menu3Selector.anchor.y = 0.5;
 
     var menu4Str = "Menu Item 4";
-    this.menu4 = game.add.bitmapText(xPos + width * 0.5, yPos + yOffset, "testfont", menu4Str, fontSize);
+    this.menu4 = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menu4Str, fontSize);
     this.menu4.anchor.x = 0;
     this.menu4.anchor.y = 0.5;
-    this.menu4Selector = game.add.bitmapText(xPos + width * 0.5, yPos + yOffset, "testfont", SELECTED_INDICATOR, fontSize);
-    this.menu4Selector.anchor.x = 1;
+    this.menu4Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
+    this.menu4Selector.anchor.x = 0;
     this.menu4Selector.anchor.y = 0.5;
 };
 
@@ -213,30 +227,30 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
 JackDanger.PokemonVadammt.prototype.changeSelection = function () {
     switch (this.selectedItemPosition) {
         case MenuItemPositions.UPPER_LEFT:
-            if(Pad.isDown(Pad.RIGHT))
+            if (Pad.isDown(Pad.RIGHT))
                 this.selectMenuItem(MenuItemPositions.UPPER_RIGHT);
-            else if(Pad.isDown(Pad.DOWN))
+            else if (Pad.isDown(Pad.DOWN))
                 this.selectMenuItem(MenuItemPositions.LOWER_LEFT);
             break;
 
         case MenuItemPositions.UPPER_RIGHT:
-            if(Pad.isDown(Pad.LEFT))
+            if (Pad.isDown(Pad.LEFT))
                 this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
-            else if(Pad.isDown(Pad.DOWN))
+            else if (Pad.isDown(Pad.DOWN))
                 this.selectMenuItem(MenuItemPositions.LOWER_RIGHT);
             break;
 
         case MenuItemPositions.LOWER_LEFT:
-            if(Pad.isDown(Pad.RIGHT))
+            if (Pad.isDown(Pad.RIGHT))
                 this.selectMenuItem(MenuItemPositions.LOWER_RIGHT);
-            else if(Pad.isDown(Pad.UP))
+            else if (Pad.isDown(Pad.UP))
                 this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
             break;
 
         case MenuItemPositions.LOWER_RIGHT:
-            if(Pad.isDown(Pad.LEFT))
+            if (Pad.isDown(Pad.LEFT))
                 this.selectMenuItem(MenuItemPositions.LOWER_LEFT);
-            else if(Pad.isDown(Pad.UP))
+            else if (Pad.isDown(Pad.UP))
                 this.selectMenuItem(MenuItemPositions.UPPER_RIGHT);
             break;
     }
