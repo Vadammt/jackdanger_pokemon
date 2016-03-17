@@ -201,6 +201,8 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
     // Process the Arrow-Keys
     this.changeSelection();
 
+    // TODO Select an menu-item
+
     this.speed += 100 * dt;
 };
 
