@@ -215,7 +215,10 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
     // Process the Arrow-Keys
     this.changeSelection();
 
-    // TODO Select an menu-item
+    if (Pad.justDown(Pad.SHOOT)) {
+        // TODO Select an menu-item
+        logInfo("Pad.SHOOT on " + this.selectedItemPosition);
+    }
 
     this.speed += 100 * dt;
 };
@@ -227,30 +230,30 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
 JackDanger.PokemonVadammt.prototype.changeSelection = function () {
     switch (this.selectedItemPosition) {
         case MenuItemPositions.UPPER_LEFT:
-            if (Pad.isDown(Pad.RIGHT))
+            if (Pad.justDown(Pad.RIGHT))
                 this.selectMenuItem(MenuItemPositions.UPPER_RIGHT);
-            else if (Pad.isDown(Pad.DOWN))
+            else if (Pad.justDown(Pad.DOWN))
                 this.selectMenuItem(MenuItemPositions.LOWER_LEFT);
             break;
 
         case MenuItemPositions.UPPER_RIGHT:
-            if (Pad.isDown(Pad.LEFT))
+            if (Pad.justDown(Pad.LEFT))
                 this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
-            else if (Pad.isDown(Pad.DOWN))
+            else if (Pad.justDown(Pad.DOWN))
                 this.selectMenuItem(MenuItemPositions.LOWER_RIGHT);
             break;
 
         case MenuItemPositions.LOWER_LEFT:
-            if (Pad.isDown(Pad.RIGHT))
+            if (Pad.justDown(Pad.RIGHT))
                 this.selectMenuItem(MenuItemPositions.LOWER_RIGHT);
-            else if (Pad.isDown(Pad.UP))
+            else if (Pad.justDown(Pad.UP))
                 this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
             break;
 
         case MenuItemPositions.LOWER_RIGHT:
-            if (Pad.isDown(Pad.LEFT))
+            if (Pad.justDown(Pad.LEFT))
                 this.selectMenuItem(MenuItemPositions.LOWER_LEFT);
-            else if (Pad.isDown(Pad.UP))
+            else if (Pad.justDown(Pad.UP))
                 this.selectMenuItem(MenuItemPositions.UPPER_RIGHT);
             break;
     }
