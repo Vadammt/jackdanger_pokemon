@@ -36,8 +36,8 @@ addMyGame("pokemon",    // ID
     "Vadammt",          // Autor
     "Pokemon - nur ohne Pokemon.",  // Beschreibung
     "Steuerung",        //Steuerkreuz
-    "[A] Auswahl",      //Jump button belegung
-    "[B] Zurück",       //Shoot button belegung
+    "[B] Zurück",       //Jump button belegung
+    "[A] Auswahl",      //Shoot button belegung
     JackDanger.PokemonVadammt);
 
 
@@ -68,9 +68,20 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
     // Create Menu
     var menuWidth = game.width * 0.5;
     var menuHeight = game.height * 0.25;
-    this.createAttackMenu(game.width - menuWidth, game.height - menuHeight, menuWidth, menuHeight);
+    var menuItemTexts = ["Attack 1", "Menu Item 2", "Menu Item 3", "Menu Item 3"];
+    this.createAttackMenu(game.width - menuWidth, game.height - menuHeight, menuWidth, menuHeight, menuItemTexts);
     // Select a menu item
     this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
+
+    // Create Stats
+    var statsWidth = game.width * 0.5;
+    var statsHeight = game.height * 0.25;
+    // create Jack Danger stats
+    this.createStats(0, 0, statsWidth, statsHeight, Fighter.Enemy1);
+    // create Enemy stats
+    var jdXPos = game.width * 0.5;
+    var jdYPos = game.height * 0.5;
+    this.createStats(jdXPos, jdYPos, statsWidth, statsHeight, Fighter.JackDanger);
 };
 
 //wird jeden Frame aufgerufen
@@ -105,26 +116,40 @@ MenuItemPositions = {
     LOWER_RIGHT: 3
 };
 
+Fighter = {
+    JackDanger: {
+        name: "Jack Danger",
+        maxHP: 100,
+        hp: 100,
+        attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Roundhousekick", dmg: 25}, {name: "N/A", dmg: 0}]
+    },
+    Enemy1: {
+        name: "Fiesling",
+        maxHP: 50,
+        hp: 50,
+        attacks: [{name: "Beißen", dmg: 5}]
+    }
+};
+
 var SELECTED_INDICATOR = "- ";
 
 JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
     // Player
-    this.player = this.add.sprite(game.width * 0.25, 350, "pokemon", "face");
+    this.player = this.add.sprite(game.width * 0.25, game.height * 0.75, "pokemon", "face");
+    this.player.x -= this.player.width * 0.5;
+    this.player.y -= this.player.height * 0.5;
 
     // Enemy
-    this.ball = this.add.sprite(game.width * 0.75, 50, "pokemon", "ball");
-    this.ball.dir = {x: 1, y: 1};
-
-    // Time Text
-    this.timeText = game.add.bitmapText(game.width / 2, 20, "testfont", "TEST", 30);
-    this.timeText.anchor.set(0.5);
+    this.ball = this.add.sprite(game.width * 0.75, game.height * 0.25, "pokemon", "ball");
+    this.ball.x -= this.ball.width * 0.5;
+    this.ball.y -= this.ball.height * 0.5;
 
     // Init values
     this.fightState = FightState.INIT;
     this.selectedItemPosition = MenuItemPositions.UPPER_LEFT;
 };
 
-JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, width, height, fontSize) {
+JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, width, height, menuEntries, fontSize) {
     if (isNaN(fontSize)) fontSize = 20;
 
     var borderWidth = 4;
@@ -144,17 +169,16 @@ JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, wid
     var menuSelectorWidth = 20; // width of bitmapText(..., "testfont", "--", 20)
 
     // Add Text
-    // 1st Row
-    var menu1Str = "Menu Item 1";
-    this.menu1 = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menu1Str, fontSize);
+    // UPPER_LEFT
+    this.menu1 = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menuEntries[MenuItemPositions.UPPER_LEFT], fontSize);
     this.menu1.anchor.x = 0;
     this.menu1.anchor.y = 0.5;
     this.menu1Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
     this.menu1Selector.anchor.x = 0;
     this.menu1Selector.anchor.y = 0.5;
 
-    var menu2Str = "Menu Item 2";
-    this.menu2 = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menu2Str, fontSize);
+    // UPPER_RIGHT
+    this.menu2 = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menuEntries[MenuItemPositions.UPPER_RIGHT], fontSize);
     this.menu2.anchor.x = 0;
     this.menu2.anchor.y = 0.5;
     this.menu2Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
@@ -163,16 +187,16 @@ JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, wid
 
     // 2nd Row...
     textYOffset *= 3;
-    var menu3Str = "Menu Item 3";
-    this.menu3 = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menu3Str, fontSize);
+    // LOWER_LEFT
+    this.menu3 = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menuEntries[MenuItemPositions.LOWER_LEFT], fontSize);
     this.menu3.anchor.x = 0;
     this.menu3.anchor.y = 0.5;
     this.menu3Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
     this.menu3Selector.anchor.x = 0;
     this.menu3Selector.anchor.y = 0.5;
 
-    var menu4Str = "Menu Item 4";
-    this.menu4 = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menu4Str, fontSize);
+    // LOWER_RIGHT
+    this.menu4 = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menuEntries[MenuItemPositions.LOWER_RIGHT], fontSize);
     this.menu4.anchor.x = 0;
     this.menu4.anchor.y = 0.5;
     this.menu4Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "testfont", SELECTED_INDICATOR, fontSize);
@@ -210,6 +234,56 @@ JackDanger.PokemonVadammt.prototype.findMenuItemSelector = function (menuItemPos
     }
 };
 
+// TODO draw debug/design-lines...
+
+JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, height, owner, fontSize) {
+    if (isNaN(fontSize)) fontSize = 20;
+    var statsValues = {
+        border: 0,
+        nameText: 0,
+        hpText: 0
+    };
+
+    // Create (debug) border
+    var border = game.add.graphics(0, 0);
+    border.lineStyle(1, 0xFF0000, 1);
+    border.drawRect(xPos, yPos, width - 1, height);
+    statsValues.border = border;
+
+    // Name
+    var nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
+    nameText.anchor.x = 0;
+    nameText.anchor.y = 0;
+    statsValues.nameText = nameText;
+
+    // Health Points
+    // Indicator
+    var indicatorXPos = xPos + width * 0.1;
+    var indicatorYPos = yPos + fontSize * 2;
+    var indicatorWidth = (width - (indicatorXPos - xPos)) * 0.9;
+    var indicator = game.add.graphics(0, 0);
+    indicator.beginFill(this.indicatorColor(owner.hp / owner.maxHP));
+    indicator.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+    indicator.endFill();
+    var indicatorBorder = game.add.graphics(0, 0);
+    indicatorBorder.lineStyle(2, 0x000000, 1);
+    indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+
+    // Text
+    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
+    hpText.anchor.x = 0;
+    hpText.anchor.y = 0;
+    statsValues.hpText = hpText;
+
+    return statsValues;
+};
+
+JackDanger.PokemonVadammt.prototype.indicatorColor = function (healthInPercent) {
+    // TODO: Green to red gradient (see http://phaser.io/docs/2.4.6/Phaser.Color.html#.HSVColorWheel and http://phaser.io/examples/v2/display/hsv-color-wheel).
+//    var colors = Phaser.Color.HSVColorWheel();
+    return 0x00DD00;
+};
+
 JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
 
     // Process the Arrow-Keys
@@ -217,16 +291,12 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
 
     if (Pad.justDown(Pad.SHOOT)) {
         // TODO Select an menu-item
-        logInfo("Pad.SHOOT on " + this.selectedItemPosition);
+        logInfo("Selected " + this.selectedItemPosition.toString());
     }
 
     this.speed += 100 * dt;
 };
 
-/**
- *
- * @returns {boolean} true if the selection changed.
- */
 JackDanger.PokemonVadammt.prototype.changeSelection = function () {
     switch (this.selectedItemPosition) {
         case MenuItemPositions.UPPER_LEFT:
@@ -257,7 +327,7 @@ JackDanger.PokemonVadammt.prototype.changeSelection = function () {
                 this.selectMenuItem(MenuItemPositions.UPPER_RIGHT);
             break;
     }
-}
+};
 
 
 JackDanger.PokemonVadammt.prototype.collision = function () {
