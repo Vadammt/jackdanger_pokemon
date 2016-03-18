@@ -74,6 +74,7 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
     this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
 
     // Create Stats
+    // Give all stats the same size
     var statsWidth = game.width * 0.5;
     var statsHeight = game.height * 0.25;
     // create Jack Danger stats
@@ -124,9 +125,15 @@ Fighter = {
         attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Roundhousekick", dmg: 25}, {name: "N/A", dmg: 0}]
     },
     Enemy1: {
-        name: "Fiesling",
+        name: "Fieser Fiesling",
         maxHP: 50,
         hp: 50,
+        attacks: [{name: "Beißen", dmg: 5}]
+    },
+    Enemy2: {
+        name: "Netter Fiesling",
+        maxHP: 100,
+        hp: 100,
         attacks: [{name: "Beißen", dmg: 5}]
     }
 };
@@ -134,12 +141,12 @@ Fighter = {
 var SELECTED_INDICATOR = "- ";
 
 JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
-    // Player
+    // Jack Danger sprite
     this.player = this.add.sprite(game.width * 0.25, game.height * 0.75, "pokemon", "face");
     this.player.x -= this.player.width * 0.5;
     this.player.y -= this.player.height * 0.5;
 
-    // Enemy
+    // Enemy sprite
     this.ball = this.add.sprite(game.width * 0.75, game.height * 0.25, "pokemon", "ball");
     this.ball.x -= this.ball.width * 0.5;
     this.ball.y -= this.ball.height * 0.5;
@@ -238,23 +245,16 @@ JackDanger.PokemonVadammt.prototype.findMenuItemSelector = function (menuItemPos
 
 JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, height, owner, fontSize) {
     if (isNaN(fontSize)) fontSize = 20;
-    var statsValues = {
-        border: 0,
-        nameText: 0,
-        hpText: 0
-    };
 
     // Create (debug) border
     var border = game.add.graphics(0, 0);
     border.lineStyle(1, 0xFF0000, 1);
     border.drawRect(xPos, yPos, width - 1, height);
-    statsValues.border = border;
 
     // Name
     var nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
     nameText.anchor.x = 0;
     nameText.anchor.y = 0;
-    statsValues.nameText = nameText;
 
     // Health Points
     // Indicator
@@ -273,15 +273,19 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
     hpText.anchor.x = 0;
     hpText.anchor.y = 0;
-    statsValues.hpText = hpText;
 
-    return statsValues;
+    return {
+        border: border,
+        nameText: nameText,
+        indicator: indicator,
+        hpText: hpText
+    };
 };
 
 JackDanger.PokemonVadammt.prototype.indicatorColor = function (healthInPercent) {
     // TODO: Green to red gradient (see http://phaser.io/docs/2.4.6/Phaser.Color.html#.HSVColorWheel and http://phaser.io/examples/v2/display/hsv-color-wheel).
 //    var colors = Phaser.Color.HSVColorWheel();
-    return 0x00DD00;
+    return 0xDD0000;
 };
 
 JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
