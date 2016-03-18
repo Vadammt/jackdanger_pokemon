@@ -83,9 +83,9 @@ Fighters = {
 };
 var enemies = [Fighters.Enemy1, Fighters.Enemy2];
 
-var SELECTED_INDICATOR = "- ";
+this.SELECTED_INDICATOR = "- ";
 
-FightStates = {
+this.FightStates = {
     INIT: 0,
     PLAYER_SELECT: 1,
     PLAYER_ATTACK: 2,
@@ -94,7 +94,7 @@ FightStates = {
     CHECK_GAME_OVER: 5
 };
 
-MenuItemPositions = {
+this.MenuItemPositions = {
     UPPER_LEFT: 0,
     UPPER_RIGHT: 1,
     LOWER_LEFT: 2,
@@ -107,7 +107,7 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
     game.stage.backgroundColor = "#EEEEEE";
 
     // Init values
-    this.gameState = this.FightStates.INIT;
+    this.gameState = FightStates.INIT;
     this.selectedItemPosition = MenuItemPositions.UPPER_LEFT;
 
     this.addStuff();
