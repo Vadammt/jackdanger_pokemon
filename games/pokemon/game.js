@@ -56,68 +56,9 @@ JackDanger.PokemonVadammt.prototype.preload = function () {
 //wird nach dem laden gestartet
 JackDanger.PokemonVadammt.prototype.create = function () {
     Pad.init();//nicht anfassen
-
-    //  Set Background color
-    game.stage.backgroundColor = "#EEEEEE";
 };
 
-JackDanger.PokemonVadammt.prototype.mycreate = function () {
-
-    this.addStuff();
-
-    // Create Menu
-    var menuWidth = game.width * 0.5;
-    var menuHeight = game.height * 0.25;
-    var menuItemTexts = ["Attack 1", "Menu Item 2", "Menu Item 3", "Menu Item 3"];
-    this.createAttackMenu(game.width - menuWidth, game.height - menuHeight, menuWidth, menuHeight, menuItemTexts);
-    // Select a menu item
-    this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
-
-    // Create Stats
-    // Give all stats the same size
-    var statsWidth = game.width * 0.5;
-    var statsHeight = game.height * 0.25;
-    // create Jack Danger stats
-    this.createStats(0, 0, statsWidth, statsHeight, Fighter.Enemy1);
-    // create Enemy stats
-    var jdXPos = game.width * 0.5;
-    var jdYPos = game.height * 0.5;
-    this.createStats(jdXPos, jdYPos, statsWidth, statsHeight, Fighter.JackDanger);
-};
-
-//wird jeden Frame aufgerufen
-JackDanger.PokemonVadammt.prototype.update = function () {
-    var dt = this.time.physicsElapsedMS * 0.001;
-
-    this.playerControlls(dt);
-    /*    this.updateBall(dt);
-     this.bounding();
-     this.collision();
-     this.updateTime(dt);
-     */
-};
-
-/////////////////////////////////////////////////////////
-// Zeug das zum Spiel gehört, das kannst du alles /////// 
-// Löschen oder ändern oder was weiß ich ////////////////
-/////////////////////////////////////////////////////////
-
-FightState = {
-    INIT: 0,
-    SELECT_ATTACK: 1,
-    ATTACK: 2,
-    ENEMY_SELECT_ATTACK: 3,
-    ENEMY_ATTACK: 4
-};
-
-MenuItemPositions = {
-    UPPER_LEFT: 0,
-    UPPER_RIGHT: 1,
-    LOWER_LEFT: 2,
-    LOWER_RIGHT: 3
-};
-
-Fighter = {
+Fighters = {
     JackDanger: {
         name: "Jack Danger",
         maxHP: 100,
@@ -137,8 +78,57 @@ Fighter = {
         attacks: [{name: "Beißen", dmg: 5}]
     }
 };
+var enemies = [Fighters.Enemy1, Fighters.Enemy2];
 
 var SELECTED_INDICATOR = "- ";
+
+FightState = {
+    INIT: 0,
+    PLAYER_SELECT: 1,
+    JD_ATTACK: 2,
+    ENEMY_SELECT: 3,
+    ENEMY_ATTACK: 4,
+    CHECK_GAME_OVER: 5
+};
+
+MenuItemPositions = {
+    UPPER_LEFT: 0,
+    UPPER_RIGHT: 1,
+    LOWER_LEFT: 2,
+    LOWER_RIGHT: 3
+};
+
+JackDanger.PokemonVadammt.prototype.mycreate = function () {
+
+    //  Set Background color
+    game.stage.backgroundColor = "#EEEEEE";
+
+    // Init values
+    this.fightState = this.FightState.INIT;
+    this.selectedItemPosition = MenuItemPositions.UPPER_LEFT;
+
+    this.addStuff();
+};
+
+//wird jeden Frame aufgerufen
+JackDanger.PokemonVadammt.prototype.update = function () {
+    var deltaT = this.time.physicsElapsedMS * 0.001;
+
+    this.playerControlls(deltaT);
+    /*    this.updateBall(deltaT);
+     this.bounding();
+     this.collision();
+     this.updateTime(deltaT);
+     */
+};
+
+// TODO process states....
+// Player_Select -> JD_Attack -> Enemy_Select -> Enemy_Attack -> Check_Game_Over -> Player_Select
+
+/////////////////////////////////////////////////////////
+// Zeug das zum Spiel gehört, das kannst du alles /////// 
+// Löschen oder ändern oder was weiß ich ////////////////
+/////////////////////////////////////////////////////////
 
 JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
     // Jack Danger sprite
@@ -151,9 +141,25 @@ JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
     this.ball.x -= this.ball.width * 0.5;
     this.ball.y -= this.ball.height * 0.5;
 
-    // Init values
-    this.fightState = FightState.INIT;
-    this.selectedItemPosition = MenuItemPositions.UPPER_LEFT;
+    // Create Menu
+    var menuWidth = game.width * 0.5;
+    var menuHeight = game.height * 0.25;
+    var menuItemTexts = ["Attack 1", "Menu Item 2", "Menu Item 3", "Menu Item 3"];
+    this.createAttackMenu(game.width - menuWidth, game.height - menuHeight, menuWidth, menuHeight, menuItemTexts);
+    // Select a menu item
+    this.selectMenuItem(MenuItemPositions.UPPER_LEFT);
+
+    // Create Stats
+    // Give all stats the same size
+    var statsWidth = game.width * 0.5;
+    var statsHeight = game.height * 0.25;
+    // Create Jack Danger stats
+    this.createStats(0, 0, statsWidth, statsHeight, Fighters.Enemy1);
+    // Create enemy stats
+    var jdXPos = game.width * 0.5;
+    var jdYPos = game.height * 0.5;
+    this.createStats(jdXPos, jdYPos, statsWidth, statsHeight, Fighters.JackDanger);
+
 };
 
 JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, width, height, menuEntries, fontSize) {
@@ -331,21 +337,4 @@ JackDanger.PokemonVadammt.prototype.changeSelection = function () {
                 this.selectMenuItem(MenuItemPositions.UPPER_RIGHT);
             break;
     }
-};
-
-
-JackDanger.PokemonVadammt.prototype.collision = function () {
-    var difX = this.player.x - this.ball.x;
-    var difY = this.player.y - this.ball.y;
-    if (Math.sqrt(difX * difX + difY * difY) < this.ball.width * 0.8) {
-        //LOST
-        onLose();
-    }
-};
-
-JackDanger.PokemonVadammt.prototype.bounding = function () {
-    if (this.player.x < 0) this.player.x = 0;
-    if (this.player.x > (this.game.width - this.player.width)) this.player.x = this.game.width - this.player.width;
-    if (this.player.y < 0) this.player.y = 0;
-    if (this.player.y > (this.game.height - this.player.height)) this.player.y = this.game.height - this.player.height;
 };
