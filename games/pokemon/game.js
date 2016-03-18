@@ -63,7 +63,10 @@ Fighters = {
         name: "Jack Danger",
         maxHP: 100,
         hp: 100,
-        attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Roundhousekick", dmg: 25}, {name: "N/A", dmg: 0}]
+        attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {
+            name: "Roundhousekick",
+            dmg: 25
+        }, {name: "N/A", dmg: 0}]
     },
     Enemy1: {
         name: "Fieser Fiesling",
@@ -82,10 +85,10 @@ var enemies = [Fighters.Enemy1, Fighters.Enemy2];
 
 var SELECTED_INDICATOR = "- ";
 
-FightState = {
+FightStates = {
     INIT: 0,
     PLAYER_SELECT: 1,
-    JD_ATTACK: 2,
+    PLAYER_ATTACK: 2,
     ENEMY_SELECT: 3,
     ENEMY_ATTACK: 4,
     CHECK_GAME_OVER: 5
@@ -104,7 +107,7 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
     game.stage.backgroundColor = "#EEEEEE";
 
     // Init values
-    this.fightState = this.FightState.INIT;
+    this.gameState = this.FightStates.INIT;
     this.selectedItemPosition = MenuItemPositions.UPPER_LEFT;
 
     this.addStuff();
@@ -122,8 +125,53 @@ JackDanger.PokemonVadammt.prototype.update = function () {
      */
 };
 
-// TODO process states....
-// Player_Select -> JD_Attack -> Enemy_Select -> Enemy_Attack -> Check_Game_Over -> Player_Select
+JackDanger.PokemonVadammt.prototype.processStates = function () {
+    switch (this.gameState) {
+        case FightStates.INIT:
+            initState();
+            break;
+        case FightStates.PLAYER_SELECT:
+            playerSelectState();
+            break;
+        case FightStates.PLAYER_ATTACK:
+            playerAttackState();
+            break;
+        case FightStates.ENEMY_SELECT:
+            enemySelectState();
+            break;
+        case FightStates.ENEMY_ATTACK:
+            enemyAttackState();
+            break;
+        case FightStates.CHECK_GAME_OVER:
+            checkGameOverState();
+            break;
+    }
+
+    // TODO funktionen implementieren!
+    function initState() {
+
+    }
+
+    function playerSelectState() {
+
+    }
+
+    function playerAttackState() {
+
+    }
+
+    function enemySelectState() {
+
+    }
+
+    function enemyAttackState() {
+
+    }
+
+    function checkGameOverState() {
+
+    }
+}
 
 /////////////////////////////////////////////////////////
 // Zeug das zum Spiel gehört, das kannst du alles /////// 
