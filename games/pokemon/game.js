@@ -194,13 +194,13 @@ JackDanger.PokemonVadammt.prototype.initStateDone = function () {
 };
 
 JackDanger.PokemonVadammt.prototype.playerSelectTransition = function () {
-    this.gameState = GameStates.PLAYER_SELECT;
+    this.gameState = this.GameStates.PLAYER_SELECT;
     logInfo("State: PLAYER_SELECT...");
 };
 
 JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
     // Error checking
-    if (this.gameState != GameStates.PLAYER_SELECT) {
+    if (this.gameState != this.GameStates.PLAYER_SELECT) {
         throw new Error("Invalid state error. Currently not in state PLAYER_SELECT.");
     }
 
@@ -409,41 +409,41 @@ JackDanger.PokemonVadammt.prototype.calcIndicatorColor = function (healthInPerce
 JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
 
     // Only accept selection in the state PLAYER_SELECT
-    if (this.gameState == GameStates.PLAYER_SELECT) {
+    if (this.gameState == this.GameStates.PLAYER_SELECT) {
         // Process the Arrow-Keys
-        changeAttackMenuSelection();
+        changeAttackMenuSelection(this);
 
         chooseAttack();
     }
 
-    function changeAttackMenuSelection() {
-        switch (this.selectedItemPosition) {
-            case this.MenuItemPositions.UPPER_LEFT:
+    function changeAttackMenuSelection(self) {
+        switch (self.selectedItemPosition) {
+            case self.MenuItemPositions.UPPER_LEFT:
                 if (Pad.justDown(Pad.RIGHT))
-                    this.selectMenuItem(this.MenuItemPositions.UPPER_RIGHT);
+                    self.selectMenuItem(self.MenuItemPositions.UPPER_RIGHT);
                 else if (Pad.justDown(Pad.DOWN))
-                    this.selectMenuItem(this.MenuItemPositions.LOWER_LEFT);
+                    self.selectMenuItem(self.MenuItemPositions.LOWER_LEFT);
                 break;
 
-            case MenuItemPositions.UPPER_RIGHT:
+            case self.MenuItemPositions.UPPER_RIGHT:
                 if (Pad.justDown(Pad.LEFT))
-                    this.selectMenuItem(this.MenuItemPositions.UPPER_LEFT);
+                    self.selectMenuItem(self.MenuItemPositions.UPPER_LEFT);
                 else if (Pad.justDown(Pad.DOWN))
-                    this.selectMenuItem(this.MenuItemPositions.LOWER_RIGHT);
+                    self.selectMenuItem(self.MenuItemPositions.LOWER_RIGHT);
                 break;
 
-            case MenuItemPositions.LOWER_LEFT:
+            case self.MenuItemPositions.LOWER_LEFT:
                 if (Pad.justDown(Pad.RIGHT))
-                    this.selectMenuItem(this.MenuItemPositions.LOWER_RIGHT);
+                    self.selectMenuItem(self.MenuItemPositions.LOWER_RIGHT);
                 else if (Pad.justDown(Pad.UP))
-                    this.selectMenuItem(this.MenuItemPositions.UPPER_LEFT);
+                    self.selectMenuItem(self.MenuItemPositions.UPPER_LEFT);
                 break;
 
-            case MenuItemPositions.LOWER_RIGHT:
+            case self.MenuItemPositions.LOWER_RIGHT:
                 if (Pad.justDown(Pad.LEFT))
-                    this.selectMenuItem(this.MenuItemPositions.LOWER_LEFT);
+                    self.selectMenuItem(self.MenuItemPositions.LOWER_LEFT);
                 else if (Pad.justDown(Pad.UP))
-                    this.selectMenuItem(this.MenuItemPositions.UPPER_RIGHT);
+                    self.selectMenuItem(self.MenuItemPositions.UPPER_RIGHT);
                 break;
         }
     }
