@@ -153,12 +153,12 @@ JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
     var statsHeight = game.height * 0.25;
 
     // Create Jack Danger stats
-    this.createStats(0, 0, statsWidth, statsHeight, this.fighterEnemy);
+    this.statsEnemy = this.createStats(0, 0, statsWidth, statsHeight, this.fighterEnemy);
 
     // Create enemy stats
     var jdXPos = game.width * 0.5;
     var jdYPos = game.height * 0.5;
-    this.createStats(jdXPos, jdYPos, statsWidth, statsHeight, this.Fighters.JackDanger);
+    this.statsJackDanger = this.createStats(jdXPos, jdYPos, statsWidth, statsHeight, this.Fighters.JackDanger);
 
 };
 
@@ -230,18 +230,39 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
     victim.hp -= attack.dmg;
 
     // TODO Update indicator
-    animateIndicator(this);
+    updateIndicator(this);
 
     logInfo(attacker.name + " attacked " + this.Fighters.toString(victim) + " - dealing " + attack.dmg + " damage.");
 
-    function animateIndicator(self) {
-        var indicator = self.indicator;
+    function updateIndicator(self) {
+        var indicator = findCurIndicator(self);
 
+        var hpInPercentage = victim.hp / victim.maxHP;
+
+        // Resize indicator
+        indicator.indicator.width = hpInPercentage;
+
+        // Re-color
+        var newColor = self.calcIndicatorColor(hpInPercentage);
+        // TODO finish: indicator.color = newColor;
+
+        indicator.indicator.updateCache();
+    }
+
+    function findCurIndicator(self) {
+        switch (self.gameState) {
+            case self.GameStates.PLAYER_ATTACK:
+                return self.statsJackDanger;
+            case self.GameStates.ENEMY_ATTACK:
+                return self.statsEnemy;
+            default:
+                throw new Error("Illegal state.");
+        }
     }
 };
 
 JackDanger.PokemonVadammt.prototype.enemySelectTransition = function () {
-    this.gameState = GameStates.ENEMY_SELECT;
+    this.gameState = this.GameStates.ENEMY_SELECT;
     logInfo("State: Enemy selecting...");
     // TODO Implement a better strategy...
     var selectedAttackIndex = 0;
@@ -378,14 +399,14 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     if (isNaN(fontSize)) fontSize = 20;
 
     // Create (debug) border
-    this.border = game.add.graphics(0, 0);
-    this.border.lineStyle(1, 0xFF0000, 1);
-    this.border.drawRect(xPos, yPos, width - 1, height);
+    var border = game.add.graphics(0, 0);
+    border.lineStyle(1, 0xFF0000, 1);
+    border.drawRect(xPos, yPos, width - 1, height);
 
     // Name
-    this.nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
-    this.nameText.anchor.x = 0;
-    this.nameText.anchor.y = 0;
+    var nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
+    nameText.anchor.x = 0;
+    nameText.anchor.y = 0;
 
     // Health Points
     // Indicator
@@ -393,19 +414,27 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     var indicatorYPos = yPos + fontSize * 2;
     var indicatorWidth = (width - (indicatorXPos - xPos)) * 0.9;
     // HP indicator
-    this.indicator = game.add.graphics(0, 0);
-    this.indicator.beginFill(this.calcIndicatorColor(owner.hp / owner.maxHP));
-    this.indicator.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
-    this.indicator.endFill();
+    var indicator = game.add.graphics(0, 0);
+    indicator.beginFill(this.calcIndicatorColor(owner.hp / owner.maxHP));
+    indicator.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+    indicator.endFill();
     // Indicator border
-    this.indicatorBorder = game.add.graphics(0, 0);
-    this.indicatorBorder.lineStyle(2, 0x000000, 1);
-    this.indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+    var indicatorBorder = game.add.graphics(0, 0);
+    indicatorBorder.lineStyle(2, 0x000000, 1);
+    indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
 
     // Text
-    this.hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
-    this.hpText.anchor.x = 0;
-    this.hpText.anchor.y = 0;
+    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
+    hpText.anchor.x = 0;
+    hpText.anchor.y = 0;
+
+    return {
+        border: border,
+        nameText: nameText,
+        indicator: indicator,
+        indicatorBorder: indicatorBorder,
+        hpText: hpText
+    }
 };
 
 JackDanger.PokemonVadammt.prototype.calcIndicatorColor = function (healthInPercent) {
