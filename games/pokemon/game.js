@@ -84,10 +84,7 @@ JackDanger.PokemonVadammt.prototype.initValues = function () {
         JackDanger: {
             name: "Jack Danger",
             maxHP: 100,
-            attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {
-                name: "Roundhousekick",
-                dmg: 25
-            }, {name: "N/A", dmg: 0}]
+            attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Roundhousekick", dmg: 25}, {name: "N/A", dmg: 0}]
         },
         Enemy1: {
             name: "Fieser Fiesling",
@@ -98,6 +95,10 @@ JackDanger.PokemonVadammt.prototype.initValues = function () {
             name: "Netter Fiesling",
             maxHP: 100,
             attacks: [{name: "Beißen", dmg: 5}]
+        },
+
+        toString: function (fighter) {
+            return fighter.name + "(HP: " + fighter.hp + ")";
         }
     };
     this.enemies = [this.Fighters.Enemy1, this.Fighters.Enemy2];
@@ -138,8 +139,11 @@ JackDanger.PokemonVadammt.prototype.addStuff = function (dt) {
     // Create Menu
     var menuWidth = game.width * 0.5;
     var menuHeight = game.height * 0.25;
-    var menuItemTexts = ["Attack 1", "Menu Item 2", "Menu Item 3", "Menu Item 3"];
-    this.createAttackMenu(game.width - menuWidth, game.height - menuHeight, menuWidth, menuHeight, menuItemTexts);
+    var attackNames = [];
+    this.fighterJackDanger.attacks.forEach(function (atk) {
+        attackNames.push(atk.name)
+    });
+    this.createAttackMenu(game.width - menuWidth, game.height - menuHeight, menuWidth, menuHeight, attackNames);
     // Select a menu item
     this.selectMenuItem(this.MenuItemPositions.UPPER_LEFT);
 
@@ -204,7 +208,7 @@ JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
         throw new Error("Invalid state error. Currently not in state PLAYER_SELECT.");
     }
 
-    logInfo("State: PLAYER_SELECT Done...");
+    logInfo("State: PLAYER_SELECT done...");
 
     // Switch gameState
     this.playerAttackTransition(chosenAttack);
@@ -222,9 +226,18 @@ JackDanger.PokemonVadammt.prototype.playerAttackTransition = function (chosenAtt
 };
 
 JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, attackIndex) {
-    var attackDmg = attacker.attacks[attackIndex];
-    victim.hp -= attackDmg;
-    logInfo(attacker.name +  " attacked " + victim.name + " - dealing " + attackDmg + " damage.");
+    var attack = attacker.attacks[attackIndex];
+    victim.hp -= attack.dmg;
+
+    // TODO Update indicator
+    animateIndicator(this);
+
+    logInfo(attacker.name + " attacked " + this.Fighters.toString(victim) + " - dealing " + attack.dmg + " damage.");
+
+    function animateIndicator(self) {
+        var indicator = self.indicator;
+
+    }
 };
 
 JackDanger.PokemonVadammt.prototype.enemySelectTransition = function () {
@@ -259,11 +272,11 @@ JackDanger.PokemonVadammt.prototype.enemyAttackTransition = function (attackInde
 JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function (nextStateTransition) {
     logInfo("State: Check is game over...");
 
-    if (JackDanger.hp <= 0) {
+    if (this.fighterJackDanger.hp <= 0) {
         logInfo("Game is over! You lose!");
         onLose();
     }
-    else if (fighterEnemy.hp <= 0) {
+    else if (this.fighterEnemy.hp <= 0) {
         logInfo("Game is over! You win!");
         onVictory();
     }
@@ -365,39 +378,34 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     if (isNaN(fontSize)) fontSize = 20;
 
     // Create (debug) border
-    var border = game.add.graphics(0, 0);
-    border.lineStyle(1, 0xFF0000, 1);
-    border.drawRect(xPos, yPos, width - 1, height);
+    this.border = game.add.graphics(0, 0);
+    this.border.lineStyle(1, 0xFF0000, 1);
+    this.border.drawRect(xPos, yPos, width - 1, height);
 
     // Name
-    var nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
-    nameText.anchor.x = 0;
-    nameText.anchor.y = 0;
+    this.nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
+    this.nameText.anchor.x = 0;
+    this.nameText.anchor.y = 0;
 
     // Health Points
     // Indicator
     var indicatorXPos = xPos + width * 0.1;
     var indicatorYPos = yPos + fontSize * 2;
     var indicatorWidth = (width - (indicatorXPos - xPos)) * 0.9;
-    var indicator = game.add.graphics(0, 0);
-    indicator.beginFill(this.calcIndicatorColor(owner.hp / owner.maxHP));
-    indicator.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
-    indicator.endFill();
-    var indicatorBorder = game.add.graphics(0, 0);
-    indicatorBorder.lineStyle(2, 0x000000, 1);
-    indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+    // HP indicator
+    this.indicator = game.add.graphics(0, 0);
+    this.indicator.beginFill(this.calcIndicatorColor(owner.hp / owner.maxHP));
+    this.indicator.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+    this.indicator.endFill();
+    // Indicator border
+    this.indicatorBorder = game.add.graphics(0, 0);
+    this.indicatorBorder.lineStyle(2, 0x000000, 1);
+    this.indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
 
     // Text
-    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
-    hpText.anchor.x = 0;
-    hpText.anchor.y = 0;
-
-    return {
-        border: border,
-        nameText: nameText,
-        indicator: indicator,
-        hpText: hpText
-    };
+    this.hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
+    this.hpText.anchor.x = 0;
+    this.hpText.anchor.y = 0;
 };
 
 JackDanger.PokemonVadammt.prototype.calcIndicatorColor = function (healthInPercent) {
@@ -413,7 +421,7 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
         // Process the Arrow-Keys
         changeAttackMenuSelection(this);
 
-        chooseAttack();
+        chooseAttack(this);
     }
 
     function changeAttackMenuSelection(self) {
@@ -448,16 +456,16 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
         }
     }
 
-    function chooseAttack() {
+    function chooseAttack(self) {
         if (Pad.justDown(Pad.SHOOT)) {
             // TODO Select an menu-item
-            logInfo("Selected " + this.selectedItemPosition.toString());
+            logInfo("Selected Attack " + self.selectedItemPosition);
 
             // Selection is over -> Inform Switch-Machine
-            var selectedAttack = this.selectedItemPosition;
-            this.playerSelectDone(selectedAttack);
+            var selectedAttack = self.selectedItemPosition;
+            self.playerSelectDone(selectedAttack);
         }
     }
 
-    this.speed += 100 * dt;
+    self.speed += 100 * dt;
 };
