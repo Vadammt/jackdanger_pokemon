@@ -80,7 +80,7 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
 };
 
 JackDanger.PokemonVadammt.prototype.initValues = function () {
-    this.Fighters = {
+    JackDanger.PokemonVadammt.prototype.Fighters = {
         JackDanger: {
             name: "Jack Danger",
             maxHP: 100,
@@ -101,12 +101,12 @@ JackDanger.PokemonVadammt.prototype.initValues = function () {
             return fighter.name + "(HP: " + fighter.hp + ")";
         }
     };
-    this.enemies = [this.Fighters.Enemy1, this.Fighters.Enemy2];
+    JackDanger.PokemonVadammt.prototype.enemies = [this.Fighters.Enemy1, this.Fighters.Enemy2];
 
-    this.SELECTED_INDICATOR = "- ";
+    JackDanger.PokemonVadammt.prototype.SELECTED_INDICATOR = "- ";
 
     var tmpInitEnums = 0;
-    this.GameStates = {
+    JackDanger.PokemonVadammt.prototype.GameStates = {
         INIT: tmpInitEnums++,
         PLAYER_SELECT: tmpInitEnums++,
         PLAYER_ATTACK: tmpInitEnums++,
@@ -117,7 +117,7 @@ JackDanger.PokemonVadammt.prototype.initValues = function () {
 
     this.attackMenu = {};
     tmpInitEnums = 0;
-    this.MenuItemPositions = {
+    JackDanger.PokemonVadammt.prototype.MenuItemPositions = {
         UPPER_LEFT: tmpInitEnums++,
         UPPER_RIGHT: tmpInitEnums++,
         LOWER_LEFT: tmpInitEnums++,
@@ -216,7 +216,7 @@ JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
 
 JackDanger.PokemonVadammt.prototype.playerAttackTransition = function (chosenAttackIndex) {
     this.gameState = this.GameStates.PLAYER_ATTACK;
-    logInfo("State: Player attacking...");
+    logInfo("State: PLAYER_ATTACK");
 
     // TODO Attack...
     this.processAttack(this.fighterJackDanger, this.fighterEnemy, chosenAttackIndex);
@@ -235,28 +235,27 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
     logInfo(attacker.name + " attacked " + this.Fighters.toString(victim) + " - dealing " + attack.dmg + " damage.");
 
     function updateIndicator(self) {
-        var indicator = findCurIndicator(self);
-
-        var hpInPercentage = victim.hp / victim.maxHP;
+        var indicator = findVictimIndicator(self);
 
         // Resize indicator
-        indicator.indicator.width = hpInPercentage;
+        var hpInPercentage = 100 * victim.hp / victim.maxHP;
+        indicator.indicator.setPercent(hpInPercentage);
 
         // Re-color
         var newColor = self.calcIndicatorColor(hpInPercentage);
         // TODO finish: indicator.color = newColor;
-
-        indicator.indicator.updateCache();
     }
 
-    function findCurIndicator(self) {
-        switch (self.gameState) {
-            case self.GameStates.PLAYER_ATTACK:
-                return self.statsJackDanger;
-            case self.GameStates.ENEMY_ATTACK:
-                return self.statsEnemy;
-            default:
-                throw new Error("Illegal state.");
+    function findVictimIndicator(self) {
+        // TODO implement this function using an ID.
+        if(victim.name == self.fighterJackDanger.name) {
+            return self.statsJackDanger;
+        }
+        else if(victim.name == self.fighterEnemy.name) {
+            return self.statsEnemy;
+        }
+        else {
+            throw new Error("Cannot find stats for victim.");
         }
     }
 };
@@ -273,24 +272,22 @@ JackDanger.PokemonVadammt.prototype.enemySelectTransition = function () {
 
 /**
  *
- * @param attackIndex The index of the selected attack in the fighter array (0 to 3).
+ * @param chosenAttackIndex The index of the selected attack in the fighter array (0 to 3).
  */
-JackDanger.PokemonVadammt.prototype.enemyAttackTransition = function (attackIndex) {
+JackDanger.PokemonVadammt.prototype.enemyAttackTransition = function (chosenAttackIndex) {
     this.gameState = this.GameStates.ENEMY_ATTACK;
-    logInfo("State: Enemy attacking...");
+    logInfo("State: PLAYER_ATTACK");
 
-    var attack = this.fighterEnemy.attacks[attackIndex];
-    logInfo("Enemy attacking with " + attack.name);
+    // TODO Attack...
+    this.processAttack(this.fighterEnemy, this.fighterJackDanger, chosenAttackIndex);
 
-    // Hit Jack Danger
-    JackDanger.hp -= attack.dmg;
+    // Check if game is over, if not: Switch to ENEMY_SELECT
+    this.checkGameOverTransition(this.playerSelectTransition());
 };
 
-/**
- *
- * @param nextStateTransition The function that switches to the next state if the game is not over.
- */
-JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function (nextStateTransition) {
+JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function () {
+    var lastState = this.gameState;
+    this.gameState = this.GameStates.CHECK_GAME_OVER;
     logInfo("State: Check is game over...");
 
     if (this.fighterJackDanger.hp <= 0) {
@@ -303,8 +300,11 @@ JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function (nextStat
     }
 
     // Run the
-    if (typeof nextStateTransition === "function") {
-        nextStateTransition();
+    if(lastState == this.GameStates.PLAYER_ATTACK) {
+        this.enemySelectTransition();
+    }
+    else if(lastState == this.GameStates.ENEMY_ATTACK) {
+        this.playerAttackTransition();
     }
 };
 
@@ -432,7 +432,6 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
         flipped: false
     };
     var indicator = new this.HealthBar(this.game, indicatorConfig);
-    indicator.setPercent(50);
 
     // Indicator border
     var indicatorBorder = game.add.graphics(0, 0);
@@ -610,7 +609,7 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPercent = function (n
     if (newValue < 0) newValue = 0;
     if (newValue > 100) newValue = 100;
 
-    var newWidth = (newValue * this.config.width) / 100;
+    var newWidth = this.config.width * (newValue / 100);
 
     this.setWidth(newWidth);
 };
@@ -624,7 +623,7 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setWidth = function (new
 
 JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setColor = function (color) {
     var col;
-    if(isNaN(color)) {
+    if (isNaN(color)) {
         col = Phaser.Color.hexToColor(color);
     }
     else {
