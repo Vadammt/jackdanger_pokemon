@@ -623,5 +623,12 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setWidth = function (new
 };
 
 JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setColor = function (color) {
-    this.hpBarBmd.fill(color.r, color.g, color.b);
+    var col;
+    if(isNaN(color)) {
+        col = Phaser.Color.hexToColor(color);
+    }
+    else {
+        col = Phaser.Color.getRGB(color);
+    }
+    this.hpBarBmd.fill(col.r, col.g, col.b);
 };
