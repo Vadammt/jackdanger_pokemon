@@ -409,15 +409,31 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     nameText.anchor.y = 0;
 
     // Health Points
-    // Indicator
+    // Values
+    var newWidth = 0.8 * width;
     var indicatorXPos = xPos + width * 0.1;
     var indicatorYPos = yPos + fontSize * 2;
     var indicatorWidth = (width - (indicatorXPos - xPos)) * 0.9;
+    var indicatorHeight = fontSize * 1.75;
+    var indicatorColor = this.calcIndicatorColor(1);
     // HP indicator
-    var indicator = game.add.graphics(0, 0);
-    indicator.beginFill(this.calcIndicatorColor(owner.hp / owner.maxHP));
-    indicator.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
-    indicator.endFill();
+    var indicatorConfig = {
+        x: 1 + (indicatorXPos + newWidth * 0.5),
+        y: indicatorYPos + indicatorHeight * 0.5,
+        width: indicatorWidth,
+        height: indicatorHeight,
+        bg: {
+            color: '#FFFFFF'
+        },
+        bar: {
+            color: indicatorColor
+        },
+        animationDuration: 200,
+        flipped: false
+    };
+    var indicator = new this.HealthBar(this.game, indicatorConfig);
+    indicator.setPercent(50);
+
     // Indicator border
     var indicatorBorder = game.add.graphics(0, 0);
     indicatorBorder.lineStyle(2, 0x000000, 1);
@@ -440,7 +456,7 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
 JackDanger.PokemonVadammt.prototype.calcIndicatorColor = function (healthInPercent) {
     // TODO: Green to red gradient (see http://phaser.io/docs/2.4.6/Phaser.Color.html#.HSVColorWheel and http://phaser.io/examples/v2/display/hsv-color-wheel).
 //    var colors = Phaser.Color.HSVColorWheel();
-    return 0xDD0000;
+    return "#DD0000";
 };
 
 JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
@@ -497,4 +513,115 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
     }
 
     self.speed += 100 * dt;
+};
+
+
+/**
+ Copyright (c) 2015 Belahcen Marwane (b.marwane@gmail.com)
+ https://github.com/bmarwane/phaser.healthbar
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ */
+
+JackDanger.PokemonVadammt.prototype.HealthBar = function (game, providedConfig) {
+    this.game = game;
+
+    this.setupConfiguration(providedConfig);
+    this.setPosition(this.config.x, this.config.y);
+    this.drawHealthBar();
+};
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.constructor = JackDanger.PokemonVadammt.prototype.HealthBar;
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setupConfiguration = function (providedConfig) {
+    this.config = this.mergeWithDefaultConfiguration(providedConfig);
+    this.flipped = this.config.flipped;
+};
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.mergeWithDefaultConfiguration = function (newConfig) {
+    var defaultConfig = {
+        width: 250,
+        height: 40,
+        x: 0,
+        y: 0,
+        bg: {
+            color: '#651828'
+        },
+        bar: {
+            color: '#FEFF03'
+        },
+        animationDuration: 200,
+        flipped: false
+    };
+
+    return mergeObjetcs(defaultConfig, newConfig);
+};
+
+function mergeObjetcs(targetObj, newObj) {
+    for (var p in newObj) {
+        try {
+            targetObj[p] = newObj[p].constructor == Object ? mergeObjetcs(targetObj[p], newObj[p]) : newObj[p];
+        } catch (e) {
+            targetObj[p] = newObj[p];
+        }
+    }
+    return targetObj;
+}
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.drawHealthBar = function () {
+    var bmd = this.game.add.bitmapData(this.config.width, this.config.height);
+    bmd.ctx.fillStyle = this.config.bar.color;
+    bmd.ctx.beginPath();
+    bmd.ctx.rect(0, 0, this.config.width, this.config.height);
+    bmd.ctx.fill();
+
+    this.hpBarBmd = bmd;
+
+    this.barSprite = this.game.add.sprite(this.x - this.config.width / 2, this.y, bmd);
+    this.barSprite.anchor.y = 0.5;
+
+    if (this.flipped) {
+        this.barSprite.scale.x = -1;
+    }
+};
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPosition = function (x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPercent = function (newValue) {
+    if (newValue < 0) newValue = 0;
+    if (newValue > 100) newValue = 100;
+
+    var newWidth = (newValue * this.config.width) / 100;
+
+    this.setWidth(newWidth);
+};
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setWidth = function (newWidth) {
+    if (this.flipped) {
+        newWidth = -1 * newWidth;
+    }
+    this.game.add.tween(this.barSprite).to({width: newWidth}, this.config.animationDuration, Phaser.Easing.Linear.None, true);
+};
+
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setColor = function (color) {
+    this.hpBarBmd.fill(color.r, color.g, color.b);
 };
