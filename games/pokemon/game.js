@@ -65,6 +65,12 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
     this.initValues();
     this.initFighters();
 
+    // Debugging
+    this.debugInfoEnabled = true;
+    if (this.debugInfoEnabled) {
+        this.initDebugInfo();
+    }
+
     //  Set Background color
     game.stage.backgroundColor = "#EEEEEE";
 
@@ -77,6 +83,10 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
 
     // Creation done -> switch gameState
     this.initStateDone();
+};
+
+JackDanger.PokemonVadammt.prototype.initDebugInfo = function () {
+    this.frameCounter = 0;
 };
 
 JackDanger.PokemonVadammt.prototype.initValues = function () {
@@ -182,6 +192,14 @@ JackDanger.PokemonVadammt.prototype.update = function () {
      this.collision();
      this.updateTime(deltaT);
      */
+
+    if (this.debugInfoEnabled) {
+        this.updateDebugInfo(this, game.width / 2, 30);
+    }
+};
+
+JackDanger.PokemonVadammt.prototype.updateDebugInfo = function (self, xPos, yPos) {
+    game.debug.text("Frame: " + ++self.frameCounter, xPos, yPos, "#000");
 };
 
 // TODO state-funktionen implementieren!
@@ -248,10 +266,10 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
 
     function findVictimIndicator(self) {
         // TODO implement this function using an ID.
-        if(victim.name == self.fighterJackDanger.name) {
+        if (victim.name == self.fighterJackDanger.name) {
             return self.statsJackDanger;
         }
-        else if(victim.name == self.fighterEnemy.name) {
+        else if (victim.name == self.fighterEnemy.name) {
             return self.statsEnemy;
         }
         else {
@@ -300,10 +318,10 @@ JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function () {
     }
 
     // Run the
-    if(lastState == this.GameStates.PLAYER_ATTACK) {
+    if (lastState == this.GameStates.PLAYER_ATTACK) {
         this.enemySelectTransition();
     }
-    else if(lastState == this.GameStates.ENEMY_ATTACK) {
+    else if (lastState == this.GameStates.ENEMY_ATTACK) {
         this.playerAttackTransition();
     }
 };
