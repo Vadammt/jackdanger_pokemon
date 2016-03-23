@@ -241,9 +241,6 @@ JackDanger.PokemonVadammt.prototype.playerAttackTransition = function (chosenAtt
 
     // TODO Attack...
     this.processAttack(this.fighterJackDanger, this.fighterEnemy, chosenAttackIndex);
-
-    // Check if game is over, if not: Switch to ENEMY_SELECT
-    this.checkGameOverTransition(this.enemySelectTransition);
 };
 
 JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, attackIndex) {
@@ -258,13 +255,14 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
     function updateIndicator(self) {
         var indicator = findVictimIndicator(self);
 
-        // Resize indicator
+        // Resize indicator and change state after that.
         var hpInPercentage = 100 * victim.hp / victim.maxHP;
-        indicator.indicator.setPercent(hpInPercentage);
+        indicator.indicator.setPercent(hpInPercentage, function () {
+            nextState(self);
+        });
 
-        // Re-color
+        // TODO Re-color (in hp-bar...)
         var newColor = self.calcIndicatorColor(hpInPercentage);
-        // TODO finish: indicator.color = newColor;
     }
 
     function findVictimIndicator(self) {
@@ -278,6 +276,11 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
         else {
             throw new Error("Cannot find stats for victim.");
         }
+    }
+
+    function nextState(self) {
+        // Check if game is over, if not: Switch to ENEMY_SELECT
+        self.checkGameOverTransition(self.enemySelectTransition);
     }
 };
 
@@ -449,8 +452,7 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
         bar: {
             color: indicatorColor
         },
-        animationDuration: 200,
-        flipped: false
+        animationDuration: 200
     };
     var indicator = new this.HealthBar(this.game, indicatorConfig);
 
@@ -535,6 +537,9 @@ JackDanger.PokemonVadammt.prototype.playerControlls = function (dt) {
     self.speed += 100 * dt;
 };
 
+function isFunction(object) {
+    return !!(object && object.constructor && object.call && object.apply);
+}
 
 /**
  Copyright (c) 2015 Belahcen Marwane (b.marwane@gmail.com)
@@ -570,7 +575,6 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.constructor = JackDanger
 
 JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setupConfiguration = function (providedConfig) {
     this.config = this.mergeWithDefaultConfiguration(providedConfig);
-    this.flipped = this.config.flipped;
 };
 
 JackDanger.PokemonVadammt.prototype.HealthBar.prototype.mergeWithDefaultConfiguration = function (newConfig) {
@@ -585,8 +589,7 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.mergeWithDefaultConfigur
         bar: {
             color: '#FEFF03'
         },
-        animationDuration: 200,
-        flipped: false
+        animationDuration: 200
     };
 
     return mergeObjetcs(defaultConfig, newConfig);
@@ -614,10 +617,6 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.drawHealthBar = function
 
     this.barSprite = this.game.add.sprite(this.x - this.config.width / 2, this.y, bmd);
     this.barSprite.anchor.y = 0.5;
-
-    if (this.flipped) {
-        this.barSprite.scale.x = -1;
-    }
 };
 
 JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPosition = function (x, y) {
@@ -625,21 +624,21 @@ JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPosition = function (
     this.y = y;
 };
 
-
-JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPercent = function (newValue) {
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setPercent = function (newValue, onComplete) {
     if (newValue < 0) newValue = 0;
     if (newValue > 100) newValue = 100;
 
     var newWidth = this.config.width * (newValue / 100);
 
-    this.setWidth(newWidth);
+
+    this.setWidth(newWidth, onComplete);
 };
 
-JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setWidth = function (newWidth) {
-    if (this.flipped) {
-        newWidth = -1 * newWidth;
+JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setWidth = function (newWidth, onComplete) {
+    var tween = this.game.add.tween(this.barSprite).to({width: newWidth}, this.config.animationDuration, Phaser.Easing.Linear.None, true);
+    if(isFunction(onComplete)) {
+        tween.onComplete.add(onComplete, this);
     }
-    this.game.add.tween(this.barSprite).to({width: newWidth}, this.config.animationDuration, Phaser.Easing.Linear.None, true);
 };
 
 JackDanger.PokemonVadammt.prototype.HealthBar.prototype.setColor = function (color) {
