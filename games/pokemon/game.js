@@ -212,7 +212,7 @@ JackDanger.PokemonVadammt.prototype.initStateDone = function () {
         throw new Error("Invalid state error. Currently not in state INIT.");
     }
 
-    logInfo("State: INIT Done...");
+    if(this.debugInfoEnabled) logInfo("State: INIT done");
 
     // Switch to PLAYER_SELECT
     this.playerSelectTransition();
@@ -220,7 +220,9 @@ JackDanger.PokemonVadammt.prototype.initStateDone = function () {
 
 JackDanger.PokemonVadammt.prototype.playerSelectTransition = function () {
     this.gameState = this.GameStates.PLAYER_SELECT;
-    logInfo("State: PLAYER_SELECT...");
+    if(this.debugInfoEnabled) logInfo("State: PLAYER_SELECT_ing...");
+
+    // Wait for player to select an attack...
 };
 
 JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
@@ -229,7 +231,7 @@ JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
         throw new Error("Invalid state error. Currently not in state PLAYER_SELECT.");
     }
 
-    logInfo("State: PLAYER_SELECT done...");
+    if(this.debugInfoEnabled) logInfo("State: PLAYER_SELECT done");
 
     // Switch gameState
     this.playerAttackTransition(chosenAttack);
@@ -237,9 +239,8 @@ JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
 
 JackDanger.PokemonVadammt.prototype.playerAttackTransition = function (chosenAttackIndex) {
     this.gameState = this.GameStates.PLAYER_ATTACK;
-    logInfo("State: PLAYER_ATTACK");
+    if(this.debugInfoEnabled) logInfo("State: PLAYER_ATTACK");
 
-    // TODO Attack...
     this.processAttack(this.fighterJackDanger, this.fighterEnemy, chosenAttackIndex);
 };
 
@@ -256,13 +257,13 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
         var indicator = findVictimIndicator(self);
 
         // Resize indicator and change state after that.
+        // TODO Re-color (in hp-bar...)
+        var newColor = self.calcIndicatorColor(hpInPercentage);
         var hpInPercentage = 100 * victim.hp / victim.maxHP;
         indicator.indicator.setPercent(hpInPercentage, function () {
             nextState(self);
         });
 
-        // TODO Re-color (in hp-bar...)
-        var newColor = self.calcIndicatorColor(hpInPercentage);
     }
 
     function findVictimIndicator(self) {
@@ -279,14 +280,22 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
     }
 
     function nextState(self) {
-        // Check if game is over, if not: Switch to ENEMY_SELECT
-        self.checkGameOverTransition(self.enemySelectTransition);
+        // Check if game is over, if not: Switch to (PLAYER_ATTACK -> ENEMY_SELECT) or (ENEMY_ATTACK -> PLAYER_SELECT)
+        if (self.gameState == self.GameStates.PLAYER_ATTACK) {
+            self.checkGameOverTransition(self.enemySelectTransition);
+        }
+        else if (self.gameState == self.GameStates.ENEMY_ATTACK) {
+            self.checkGameOverTransition(self.playerSelectTransition());
+        }
+        else {
+            throw new Error("Wrong state. Cannot continue .");
+        }
     }
 };
 
 JackDanger.PokemonVadammt.prototype.enemySelectTransition = function () {
     this.gameState = this.GameStates.ENEMY_SELECT;
-    logInfo("State: Enemy selecting...");
+    if(this.debugInfoEnabled) logInfo("State: ENEMY_SELECT");
     // TODO Implement a better strategy...
     var selectedAttackIndex = 0;
 
@@ -300,19 +309,15 @@ JackDanger.PokemonVadammt.prototype.enemySelectTransition = function () {
  */
 JackDanger.PokemonVadammt.prototype.enemyAttackTransition = function (chosenAttackIndex) {
     this.gameState = this.GameStates.ENEMY_ATTACK;
-    logInfo("State: PLAYER_ATTACK");
+    if(this.debugInfoEnabled) logInfo("State: ENEMY_ATTACK");
 
-    // TODO Attack...
     this.processAttack(this.fighterEnemy, this.fighterJackDanger, chosenAttackIndex);
-
-    // Check if game is over, if not: Switch to ENEMY_SELECT
-    this.checkGameOverTransition(this.playerSelectTransition());
 };
 
 JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function () {
     var lastState = this.gameState;
     this.gameState = this.GameStates.CHECK_GAME_OVER;
-    logInfo("State: Check is game over...");
+    if(this.debugInfoEnabled) logInfo("State: CHECK_GAME_OVER");
 
     if (this.fighterJackDanger.hp <= 0) {
         logInfo("Game is over! You lose!");
@@ -328,7 +333,7 @@ JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function () {
         this.enemySelectTransition();
     }
     else if (lastState == this.GameStates.ENEMY_ATTACK) {
-        this.playerAttackTransition();
+        this.playerSelectTransition();
     }
 };
 
