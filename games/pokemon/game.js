@@ -194,12 +194,15 @@ JackDanger.PokemonVadammt.prototype.update = function () {
      */
 
     if (this.debugInfoEnabled) {
-        this.updateDebugInfo(this, game.width / 2, 30);
+        this.updateDebugInfo(this);
     }
 };
 
-JackDanger.PokemonVadammt.prototype.updateDebugInfo = function (self, xPos, yPos) {
-    game.debug.text("Frame: " + ++self.frameCounter, xPos, yPos, "#000");
+JackDanger.PokemonVadammt.prototype.updateDebugInfo = function (self) {
+
+    var lengthOfNumber = self.frameCounter.toString().length;
+    var xPos = game.width - 100 - ((lengthOfNumber - 1) * 10);
+    game.debug.text("Frame: " + ++self.frameCounter, xPos, 30, "#000");
 };
 
 // TODO state-funktionen implementieren!
