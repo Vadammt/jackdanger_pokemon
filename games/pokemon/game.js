@@ -187,11 +187,6 @@ JackDanger.PokemonVadammt.prototype.update = function () {
     var deltaT = this.time.physicsElapsedMS * 0.001;
 
     this.playerControlls(deltaT);
-    /*    this.updateBall(deltaT);
-     this.bounding();
-     this.collision();
-     this.updateTime(deltaT);
-     */
 
     if (this.debugInfoEnabled) {
         this.updateDebugInfo(this);
