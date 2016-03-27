@@ -320,7 +320,7 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
         if (attacker == self.fighterJackDanger) {
             self.checkGameOverTransition(self.GameStates.ENEMY_SELECT);
         }
-        if (attacker == self.fighterEnemy) {
+        else if (attacker == self.fighterEnemy) {
             self.checkGameOverTransition(self.GameStates.PLAYER_SELECT);
         }
         else {
@@ -347,9 +347,9 @@ JackDanger.PokemonVadammt.prototype.enemyAttackTransition = function (chosenAtta
     this.gameState = this.GameStates.ATTACK;
     if (this.debugInfoEnabled) logInfo("State: ATTACK");
 
-    var choosenAttack = this.fighterEnemy.attacks[chosenAttackIndex];
+    var chosenAttack = this.fighterEnemy.attacks[chosenAttackIndex];
 
-    this.processAttack(this.fighterEnemy, this.fighterJackDanger, choosenAttack);
+    this.processAttack(this.fighterEnemy, this.fighterJackDanger, chosenAttack);
 };
 
 JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function (nextState) {
