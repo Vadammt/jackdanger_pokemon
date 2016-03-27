@@ -59,6 +59,7 @@ JackDanger.PokemonVadammt.prototype.preload = function () {
 
     //füge hier ein was du alles laden musst.
     this.load.atlas("pokemon");
+    this.load.bitmapFont('pokemon_font', 'pokemon_font.png', 'pokemon_font.xml');
 };
 
 //wird nach dem laden gestartet
@@ -168,12 +169,12 @@ JackDanger.PokemonVadammt.prototype.addStuff = function () {
     var statsHeight = game.height * 0.25;
 
     // Create Jack Danger stats
-    this.statsEnemy = this.createStats(0, 0, statsWidth, statsHeight, this.fighterEnemy);
+    this.statsEnemy = this.createHealthbar(0, 0, statsWidth, statsHeight, this.fighterEnemy);
 
     // Create enemy stats
     var jdXPos = game.width * 0.5;
     var jdYPos = game.height * 0.5;
-    this.statsJackDanger = this.createStats(jdXPos, jdYPos, statsWidth, statsHeight, this.Fighters.JackDanger);
+    this.statsJackDanger = this.createHealthbar(jdXPos, jdYPos, statsWidth, statsHeight, this.Fighters.JackDanger);
 
 };
 
@@ -399,24 +400,24 @@ JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, wid
     var newYPos = yPos + borderWidth;
 
     var textYOffset = newHeight * 0.25;
-    var menuSelectorWidth = 20; // width of bitmapText(..., "testfont", "--", 20)
+    var menuSelectorWidth = 20; // width of bitmapText(..., "pokemon_font", "--", 20)
 
     // Add Text
     // UPPER_LEFT
     var menu1Str = menuTextByPosition(this.MenuItemPositions.UPPER_LEFT);
-    this.menu1Text = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menu1Str, fontSize);
+    this.menu1Text = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "pokemon_font", menu1Str, fontSize);
     this.menu1Text.anchor.x = 0;
     this.menu1Text.anchor.y = 0.5;
-    this.menu1Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "testfont", this.SELECTED_INDICATOR, fontSize);
+    this.menu1Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "pokemon_font", this.SELECTED_INDICATOR, fontSize);
     this.menu1Selector.anchor.x = 0;
     this.menu1Selector.anchor.y = 0.5;
 
     // UPPER_RIGHT
     var menu2Str = menuTextByPosition(this.MenuItemPositions.UPPER_RIGHT);
-    this.menu2Text = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menu2Str, fontSize);
+    this.menu2Text = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "pokemon_font", menu2Str, fontSize);
     this.menu2Text.anchor.x = 0;
     this.menu2Text.anchor.y = 0.5;
-    this.menu2Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "testfont", this.SELECTED_INDICATOR, fontSize);
+    this.menu2Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "pokemon_font", this.SELECTED_INDICATOR, fontSize);
     this.menu2Selector.anchor.x = 0;
     this.menu2Selector.anchor.y = 0.5;
 
@@ -424,19 +425,19 @@ JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, wid
     textYOffset *= 3;
     // LOWER_LEFT
     var menu3Str = menuTextByPosition(this.MenuItemPositions.LOWER_LEFT);
-    this.menu3Text = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "testfont", menu3Str, fontSize);
+    this.menu3Text = game.add.bitmapText(newXPos + menuSelectorWidth, newYPos + textYOffset, "pokemon_font", menu3Str, fontSize);
     this.menu3Text.anchor.x = 0;
     this.menu3Text.anchor.y = 0.5;
-    this.menu3Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "testfont", this.SELECTED_INDICATOR, fontSize);
+    this.menu3Selector = game.add.bitmapText(newXPos, newYPos + textYOffset, "pokemon_font", this.SELECTED_INDICATOR, fontSize);
     this.menu3Selector.anchor.x = 0;
     this.menu3Selector.anchor.y = 0.5;
 
     // LOWER_RIGHT
     var menu4Str = menuTextByPosition(this.MenuItemPositions.LOWER_RIGHT);
-    this.menu4Text = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "testfont", menu4Str, fontSize);
+    this.menu4Text = game.add.bitmapText(newXPos + menuSelectorWidth + newWidth * 0.5, newYPos + textYOffset, "pokemon_font", menu4Str, fontSize);
     this.menu4Text.anchor.x = 0;
     this.menu4Text.anchor.y = 0.5;
-    this.menu4Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "testfont", this.SELECTED_INDICATOR, fontSize);
+    this.menu4Selector = game.add.bitmapText(newXPos + newWidth * 0.5, newYPos + textYOffset, "pokemon_font", this.SELECTED_INDICATOR, fontSize);
     this.menu4Selector.anchor.x = 0;
     this.menu4Selector.anchor.y = 0.5;
 
@@ -477,7 +478,7 @@ JackDanger.PokemonVadammt.prototype.findMenuItemSelector = function (menuItemPos
 
 // TODO draw debug/design-lines...
 
-JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, height, owner, fontSize) {
+JackDanger.PokemonVadammt.prototype.createHealthbar = function (xPos, yPos, width, height, owner, fontSize) {
     if (isNaN(fontSize)) fontSize = 20;
 
     // Create (debug) border
@@ -488,7 +489,7 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     }
 
     // Name
-    var nameText = game.add.bitmapText(xPos + 0, yPos + 0, "testfont", owner.name, fontSize);
+    var nameText = game.add.bitmapText(xPos + 0, yPos + 0, "pokemon_font", owner.name, fontSize);
     nameText.anchor.x = 0;
     nameText.anchor.y = 0;
 
@@ -522,7 +523,7 @@ JackDanger.PokemonVadammt.prototype.createStats = function (xPos, yPos, width, h
     indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
 
     // Text
-    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "testfont", "HP    " + owner.hp, fontSize);
+    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "pokemon_font", "HP    " + owner.hp, fontSize);
     hpText.anchor.x = 0;
     hpText.anchor.y = 0;
 
