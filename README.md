@@ -1,7 +1,8 @@
 # Jack Danger Pokemon
 ## My contribution to the #gppcc8.
 
+### Spielen
+Jack Danger - Pokemon kann hier gespielt werden: http://vadammt.github.io/jackdanger_pokemon
+
 ### Installieren
-1. Framework runterladen: http://www.lets-gamedev.de/JackDanger-v4.zip
-2. Das repo in den root-Ordner clonen (erzeugt den Ordner ./games/pokemon und ersetzt die index.html)
-3. Die ``index.html`` mit dem Browser öffnen.
+Das Repo enthält das JackDanger-Framework-v4 → Herunterladen und starten.
