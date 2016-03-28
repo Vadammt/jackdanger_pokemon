@@ -199,6 +199,10 @@ JackDanger.PokemonVadammt.prototype.update = function () {
     }
 };
 
+JackDanger.PokemonVadammt.prototype.render = function() {
+
+};
+
 JackDanger.PokemonVadammt.prototype.updateDebugInfo = function (self) {
 
     var lengthOfNumber = self.frameCounter.toString().length;
