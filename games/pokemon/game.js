@@ -121,7 +121,8 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
 
     // Debugging
     if (this.debugInfoEnabled) {
-        this.initDebugInfo();
+        // Init values for debugging
+        this.frameCounter = 0;
     }
 
     // Init all class-wide values
@@ -145,10 +146,6 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
 
     // Creation done -> switch gameState
     this.initStateDone();
-};
-
-JackDanger.PokemonVadammt.prototype.initDebugInfo = function () {
-    this.frameCounter = 0;
 };
 
 JackDanger.PokemonVadammt.prototype.addStuff = function () {
