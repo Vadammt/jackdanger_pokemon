@@ -51,7 +51,7 @@ addMyGame("pokemon",    // ID
     "[A] Auswahl",      //Shoot button belegung
     JackDanger.PokemonVadammt);
 
-var self = JackDanger.PokemonVadammt.prototype;
+JackDanger.PokemonVadammt.prototype.debugInfoEnabled = true;
 
 JackDanger.PokemonVadammt.prototype.Fighters = {
     JackDanger: {
@@ -77,7 +77,7 @@ JackDanger.PokemonVadammt.prototype.Fighters = {
         return fighter.name + "(HP: " + fighter.hp + ")";
     }
 };
-JackDanger.PokemonVadammt.prototype.enemies = [self.Fighters.Enemy1, self.Fighters.Enemy2];
+JackDanger.PokemonVadammt.prototype.enemies = [JackDanger.PokemonVadammt.prototype.Fighters.Enemy1, JackDanger.PokemonVadammt.prototype.Fighters.Enemy2];
 
 JackDanger.PokemonVadammt.prototype.SELECTED_INDICATOR = "- ";
 
@@ -97,7 +97,6 @@ JackDanger.PokemonVadammt.prototype.MenuItemPositions = {
     LOWER_LEFT: {id: tmpInitEnums++, name: "LOWER_LEFT"},
     LOWER_RIGHT: {id: tmpInitEnums++, name: "LOWER_RIGHT"},
 };
-
 
 JackDanger.PokemonVadammt.prototype.init = function () {
     logInfo("init Game");
@@ -120,14 +119,19 @@ JackDanger.PokemonVadammt.prototype.create = function () {
 
 JackDanger.PokemonVadammt.prototype.mycreate = function () {
 
-    // Init all class-wide values
-    this.initFighters();
-
     // Debugging
-    this.debugInfoEnabled = true;
     if (this.debugInfoEnabled) {
         this.initDebugInfo();
     }
+
+    // Init all class-wide values
+    // Init Jack Danger
+    this.fighterJackDanger = this.Fighters.JackDanger;
+    this.fighterJackDanger.hp = this.fighterJackDanger.maxHP;
+
+    // Init 1st Enemy
+    this.fighterEnemy = this.Fighters.Enemy1;
+    this.fighterEnemy.hp = this.fighterEnemy.maxHP;
 
     //  Set Background color
     game.stage.backgroundColor = "#EEEEEE";
@@ -183,16 +187,6 @@ JackDanger.PokemonVadammt.prototype.addStuff = function () {
     var jdYPos = game.height * 0.5;
     this.statsJackDanger = this.createHealthbar(jdXPos, jdYPos, statsWidth, statsHeight, this.Fighters.JackDanger);
 
-};
-
-JackDanger.PokemonVadammt.prototype.initFighters = function () {
-    // Jack Danger
-    this.fighterJackDanger = this.Fighters.JackDanger;
-    this.fighterJackDanger.hp = this.fighterJackDanger.maxHP;
-
-    // 1st Enemy
-    this.fighterEnemy = this.Fighters.Enemy1;
-    this.fighterEnemy.hp = this.fighterEnemy.maxHP;
 };
 
 //wird jeden Frame aufgerufen
