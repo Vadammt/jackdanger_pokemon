@@ -32,6 +32,9 @@
  * Healthbar
  * Copyright (c) 2015 Belahcen Marwane (b.marwane@gmail.com)
  * https://github.com/bmarwane/phaser.healthbar
+ *
+ * Jack Danger Sprite
+ * b7even - https://github.com/b7even/JackDanger-ZombieInvasion
  */
 
 JackDanger.PokemonVadammt = function () {
@@ -48,6 +51,53 @@ addMyGame("pokemon",    // ID
     "[A] Auswahl",      //Shoot button belegung
     JackDanger.PokemonVadammt);
 
+var self = JackDanger.PokemonVadammt.prototype;
+
+JackDanger.PokemonVadammt.prototype.Fighters = {
+    JackDanger: {
+        name: "Jack Danger",
+        maxHP: 100,
+        attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Headshot", dmg: 25}, {name: "N/A", dmg: 0}],
+        img: "jackdanger"
+    },
+    Enemy1: {
+        name: "Fieser Fiesling",
+        maxHP: 50,
+        attacks: [{name: "Beißen", dmg: 5}],
+        img: "enemy1"
+    },
+    Enemy2: {
+        name: "Netter Fiesling",
+        maxHP: 100,
+        attacks: [{name: "Beißen", dmg: 5}],
+        img: "enemy2"
+    },
+
+    toString: function (fighter) {
+        return fighter.name + "(HP: " + fighter.hp + ")";
+    }
+};
+JackDanger.PokemonVadammt.prototype.enemies = [self.Fighters.Enemy1, self.Fighters.Enemy2];
+
+JackDanger.PokemonVadammt.prototype.SELECTED_INDICATOR = "- ";
+
+var tmpInitEnums = 0;
+JackDanger.PokemonVadammt.prototype.GameStates = {
+    INIT: {id: tmpInitEnums++, name: "INIT"},
+    PLAYER_SELECT: {id: tmpInitEnums++, name: "PLAYER_SELECT"},
+    ENEMY_SELECT: {id: tmpInitEnums++, name: "ENEMY_SELECT"},
+    ATTACK: {id: tmpInitEnums++, name: "ATTACK"},
+    CHECK_GAME_OVER: {id: tmpInitEnums++, name: "CHECK_GAME_OVER"},
+};
+
+tmpInitEnums = 0;
+JackDanger.PokemonVadammt.prototype.MenuItemPositions = {
+    UPPER_LEFT: {id: tmpInitEnums++, name: "UPPER_LEFT"},
+    UPPER_RIGHT: {id: tmpInitEnums++, name: "UPPER_RIGHT"},
+    LOWER_LEFT: {id: tmpInitEnums++, name: "LOWER_LEFT"},
+    LOWER_RIGHT: {id: tmpInitEnums++, name: "LOWER_RIGHT"},
+};
+
 
 JackDanger.PokemonVadammt.prototype.init = function () {
     logInfo("init Game");
@@ -59,6 +109,7 @@ JackDanger.PokemonVadammt.prototype.preload = function () {
 
     //füge hier ein was du alles laden musst.
     this.load.atlas("pokemon");
+    game.load.image("jackdanger", "jack.png");
     this.load.bitmapFont('pokemon_font', 'pokemon_font.png', 'pokemon_font.xml');
 };
 
@@ -70,7 +121,6 @@ JackDanger.PokemonVadammt.prototype.create = function () {
 JackDanger.PokemonVadammt.prototype.mycreate = function () {
 
     // Init all class-wide values
-    this.initValues();
     this.initFighters();
 
     // Debugging
@@ -97,53 +147,10 @@ JackDanger.PokemonVadammt.prototype.initDebugInfo = function () {
     this.frameCounter = 0;
 };
 
-JackDanger.PokemonVadammt.prototype.initValues = function () {
-    JackDanger.PokemonVadammt.prototype.Fighters = {
-        JackDanger: {
-            name: "Jack Danger",
-            maxHP: 100,
-            attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Headshot", dmg: 25}, {name: "N/A", dmg: 0}]
-        },
-        Enemy1: {
-            name: "Fieser Fiesling",
-            maxHP: 50,
-            attacks: [{name: "Beißen", dmg: 5}]
-        },
-        Enemy2: {
-            name: "Netter Fiesling",
-            maxHP: 100,
-            attacks: [{name: "Beißen", dmg: 5}]
-        },
-
-        toString: function (fighter) {
-            return fighter.name + "(HP: " + fighter.hp + ")";
-        }
-    };
-    JackDanger.PokemonVadammt.prototype.enemies = [this.Fighters.Enemy1, this.Fighters.Enemy2];
-
-    JackDanger.PokemonVadammt.prototype.SELECTED_INDICATOR = "- ";
-
-    var tmpInitEnums = 0;
-    JackDanger.PokemonVadammt.prototype.GameStates = {
-        INIT: {id: tmpInitEnums++, name: "INIT"},
-        PLAYER_SELECT: {id: tmpInitEnums++, name: "PLAYER_SELECT"},
-        ENEMY_SELECT: {id: tmpInitEnums++, name: "ENEMY_SELECT"},
-        ATTACK: {id: tmpInitEnums++, name: "ATTACK"},
-        CHECK_GAME_OVER: {id: tmpInitEnums++, name: "CHECK_GAME_OVER"},
-    };
-
-    tmpInitEnums = 0;
-    JackDanger.PokemonVadammt.prototype.MenuItemPositions = {
-        UPPER_LEFT: {id: tmpInitEnums++, name: "UPPER_LEFT"},
-        UPPER_RIGHT: {id: tmpInitEnums++, name: "UPPER_RIGHT"},
-        LOWER_LEFT: {id: tmpInitEnums++, name: "LOWER_LEFT"},
-        LOWER_RIGHT: {id: tmpInitEnums++, name: "LOWER_RIGHT"},
-    };
-};
-
 JackDanger.PokemonVadammt.prototype.addStuff = function () {
     // Jack Danger sprite
-    this.player = this.add.sprite(game.width * 0.25, game.height * 0.75, "pokemon", "face");
+    this.player = this.add.sprite(game.width * 0.25, game.height * 0.75, "jackdanger");
+    this.player.scale.setTo(3, 3);
     this.player.x -= this.player.width * 0.5;
     this.player.y -= this.player.height * 0.5;
 
@@ -203,11 +210,11 @@ JackDanger.PokemonVadammt.prototype.render = function() {
 
 };
 
-JackDanger.PokemonVadammt.prototype.updateDebugInfo = function (self) {
+JackDanger.PokemonVadammt.prototype.updateDebugInfo = function () {
 
-    var lengthOfNumber = self.frameCounter.toString().length;
+    var lengthOfNumber = this.frameCounter.toString().length;
     var xPos = game.width - 100 - ((lengthOfNumber - 1) * 10);
-    game.debug.text("Frame: " + ++self.frameCounter, xPos, 30, "#000");
+    game.debug.text("Frame: " + ++this.frameCounter, xPos, 30, "#000");
 };
 
 /**
