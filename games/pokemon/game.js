@@ -40,7 +40,7 @@ JackDanger.PokemonVadammt = function () {
 
 //hier musst du deine Eintragungen vornhemen.
 addMyGame("pokemon",    // ID
-    "JackDanger Pokemon",           // Anzeige-Name
+    "Pokemon",          // Anzeige-Name
     "Vadammt",          // Autor
     "Pokemon - nur ohne Pokemon.",  // Beschreibung
     "Steuerung",        //Steuerkreuz
@@ -520,10 +520,11 @@ JackDanger.PokemonVadammt.prototype.createHealthbar = function (xPos, yPos, widt
     // Indicator border
     var indicatorBorder = game.add.graphics(0, 0);
     indicatorBorder.lineStyle(2, 0x000000, 1);
-    indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, fontSize * 1.75);
+    indicatorBorder.drawRect(indicatorXPos, indicatorYPos, indicatorWidth, indicatorHeight);
 
     // Text
-    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "pokemon_font", "HP    " + owner.hp, fontSize);
+    var hpTextStr = "HP " + owner.hp;
+    var hpText = game.add.bitmapText(xPos, indicatorYPos + 0.25 * fontSize, "pokemon_font", hpTextStr, fontSize);
     hpText.anchor.x = 0;
     hpText.anchor.y = 0;
 
