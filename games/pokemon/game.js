@@ -102,7 +102,7 @@ JackDanger.PokemonVadammt.prototype.initValues = function () {
         JackDanger: {
             name: "Jack Danger",
             maxHP: 100,
-            attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Roundhousekick", dmg: 25}, {name: "N/A", dmg: 0}]
+            attacks: [{name: "Punch", dmg: 10}, {name: "Platscher", dmg: 0}, {name: "Headshot", dmg: 25}, {name: "N/A", dmg: 0}]
         },
         Enemy1: {
             name: "Fieser Fiesling",
