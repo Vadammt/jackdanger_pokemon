@@ -292,7 +292,30 @@ JackDanger.PokemonVadammt.prototype.playerAttackTransition = function (chosenAtt
     this.gameState = this.GameStates.ATTACK;
     if (this.debugInfoEnabled) logInfo("State: ATTACK");
 
+    this.changeMenuVisibility(false);
+
     this.processAttack(this.fighterJackDanger, this.fighterEnemy, chosenAttack);
+};
+
+
+
+JackDanger.PokemonVadammt.prototype.changeMenuVisibility = function (visible) {
+    var attackMenuParts = [
+        // Attack Menu
+        this.attackMenuBorder,
+        this.menu1Text, this.menu1Selector,
+        this.menu2Text, this.menu2Selector,
+        this.menu3Text, this.menu3Selector,
+        this.menu4Text, this.menu4Selector,
+        // Attack Info
+        this.atkInfoBorder,
+        this.atkInfoDmgText, this.atkInfoDmgValue,
+        this.atkInfoDmgText2, this.atkInfoDmgValue2,
+    ];
+
+    attackMenuParts.forEach(function (menuEntry) {
+        menuEntry.visible = visible;
+    });
 };
 
 JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, attack) {
@@ -300,7 +323,6 @@ JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, 
     // Process attack (values)
     victim.hp -= attack.dmg;
 
-    // TODO Update indicator
     // Visualize the attack.
     updateIndicator(this);
 
@@ -395,16 +417,16 @@ JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function (nextStat
 };
 
 JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, width, height, menuEntries, fontSize, borderWidth) {
-    if (fontSize === undefined) fontSize = 20;
+    if (fontSize === undefined) fontSize = this.fontSize;
     if (borderWidth === undefined) borderWidth = 4;
 
     var newWidth = width - borderWidth;
     var newHeight = height - borderWidth;
 
     // Create border
-    var graphics = game.add.graphics(0, 0);
-    graphics.lineStyle(borderWidth, 0x000, 1);
-    graphics.drawRect(xPos, yPos, newWidth, newHeight);
+    this.attackMenuBorder = this.add.graphics(0, 0);
+    this.attackMenuBorder.lineStyle(borderWidth, 0x000, 1);
+    this.attackMenuBorder.drawRect(xPos, yPos, newWidth, newHeight);
 
     // Set new (x,y) to inside the border.
     var newXPos = xPos + borderWidth;
@@ -462,16 +484,16 @@ JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, wid
 };
 
 JackDanger.PokemonVadammt.prototype.createAttackInfo = function (xPos, yPos, width, height, menuEntries, fontSize, borderWidth) {
-    if (fontSize === undefined) fontSize = 20;
+    if (fontSize === undefined) fontSize = this.fontSize;
     if (borderWidth === undefined) borderWidth = 4;
 
     var newWidth = width - borderWidth;
     var newHeight = height - borderWidth;
 
     // Create border
-    var graphics = game.add.graphics(0, 0);
-    graphics.lineStyle(borderWidth, 0x000, 1);
-    graphics.drawRect(xPos, yPos, newWidth, newHeight);
+    this.atkInfoBorder = game.add.graphics(0, 0);
+    this.atkInfoBorder.lineStyle(borderWidth, 0x000, 1);
+    this.atkInfoBorder.drawRect(xPos, yPos, newWidth, newHeight);
 
     // Set new (x,y) to inside the border.
     var newXPos = xPos + (newWidth / 2);
