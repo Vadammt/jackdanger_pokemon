@@ -372,18 +372,14 @@ JackDanger.PokemonVadammt.prototype.checkGameOverTransition = function (nextStat
     this.gameState = this.GameStates.CHECK_GAME_OVER;
     if (this.debugInfoEnabled) logInfo("State: CHECK_GAME_OVER");
 
-    if (this.fighterJackDanger.hp <= 0 && this.fighterEnemy.hp <= 0) {
-        // TODO draw... Now interpreted as a win.
-        logInfo("Game is over! Draw! You win...");
-        onVictory();
-    }
-    if (this.fighterJackDanger.hp <= 0) {
-        logInfo("Game is over! You lose!");
-        onLose();
-    }
-    else if (this.fighterEnemy.hp <= 0) {
+    // First check for victory, then for lose (in case of draw).
+    if (this.fighterEnemy.hp <= 0) {
         logInfo("Game is over! You win!");
         onVictory();
+    }
+    else if (this.fighterJackDanger.hp <= 0) {
+        logInfo("Game is over! You lose!");
+        onLose();
     }
 
     // Start the next attack phase.
