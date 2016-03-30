@@ -67,13 +67,13 @@ JackDanger.PokemonVadammt.prototype.Fighters = {
     Enemy1: {
         name: "Fieser Fiesling",
         maxHP: 50,
-        attacks: [{name: "Beißen", dmg: 5}],
+        attacks: [{name: "Beissen", dmg: 5}],
         img: "enemy1"
     },
     Enemy2: {
         name: "Netter Fiesling",
         maxHP: 100,
-        attacks: [{name: "Beißen", dmg: 5}],
+        attacks: [{name: "Beissen", dmg: 5}],
         img: "enemy2"
     },
 
@@ -183,12 +183,21 @@ JackDanger.PokemonVadammt.prototype.addStuff = function () {
     // Select a menu item
     this.selectMenuItem(this.MenuItemPositions.UPPER_LEFT);
 
+    // Create text menu.
+    var textMenuWidth = game.width;
+    var textMenuHeight = game.height * 0.25;
+    var textMenuPos = {x: 0, y: game.height - textMenuHeight};
+    var testStr = "123456789 123456789 123456789 123456789 123456789 ";
+    this.createTextMenu(textMenuPos.x, textMenuPos.y, textMenuWidth, textMenuHeight, testStr);
 
-    // Create Healthbar
+    // Hide the menus.
+    this.changeAttackMenuVisibility(false);
+    this.changeTextMenuVisibility(false);
+
+    // Create Healthbars
     // Give all healthbars the same size
     var statsWidth = game.width * 0.5;
     var statsHeight = game.height * 0.25;
-
     // Create Jack Danger healthbar
     this.statsEnemy = this.createHealthbar(0, 0, statsWidth, statsHeight, this.fighterEnemy);
 
@@ -196,7 +205,6 @@ JackDanger.PokemonVadammt.prototype.addStuff = function () {
     var jdXPos = game.width * 0.5;
     var jdYPos = game.height * 0.5;
     this.statsJackDanger = this.createHealthbar(jdXPos, jdYPos, statsWidth, statsHeight, this.Fighters.JackDanger);
-
 };
 
 //wird jeden Frame aufgerufen
@@ -273,6 +281,9 @@ JackDanger.PokemonVadammt.prototype.playerSelectTransition = function () {
     this.gameState = this.GameStates.PLAYER_SELECT;
     if (this.debugInfoEnabled) logInfo("State: PLAYER_SELECT_ing...");
 
+    // Show attack menu
+    this.changeAttackMenuVisibility(true);
+
     // Wait for player to select an attack...
 };
 
@@ -284,6 +295,9 @@ JackDanger.PokemonVadammt.prototype.playerSelectDone = function (chosenAttack) {
 
     if (this.debugInfoEnabled) logInfo("State: PLAYER_SELECT done");
 
+    // Hide attack menu
+    this.changeAttackMenuVisibility(false);
+
     // Switch gameState
     this.playerAttackTransition(chosenAttack);
 };
@@ -292,14 +306,33 @@ JackDanger.PokemonVadammt.prototype.playerAttackTransition = function (chosenAtt
     this.gameState = this.GameStates.ATTACK;
     if (this.debugInfoEnabled) logInfo("State: ATTACK");
 
-    this.changeMenuVisibility(false);
-
     this.processAttack(this.fighterJackDanger, this.fighterEnemy, chosenAttack);
 };
 
+JackDanger.PokemonVadammt.prototype.showMenuText = function (text, onDone) {
+    if(text === false) {
+        this.changeTextMenuVisibility(false);
+        return;
+    }
 
+    // Show text menu.
+    this.changeTextMenuVisibility(true);
 
-JackDanger.PokemonVadammt.prototype.changeMenuVisibility = function (visible) {
+    // Store new text string
+    this.textMenuString = text;
+
+    // TODO Animate text
+    this.textMenuText.text = text;
+
+    setTimeout(onDone, 1000);
+};
+
+JackDanger.PokemonVadammt.prototype.changeAttackMenuVisibility = function (visible) {
+    if(visible === true) {
+        // Then hide other opened menus.
+        this.changeTextMenuVisibility(false);
+    }
+
     var attackMenuParts = [
         // Attack Menu
         this.attackMenuBorder,
@@ -318,17 +351,37 @@ JackDanger.PokemonVadammt.prototype.changeMenuVisibility = function (visible) {
     });
 };
 
+JackDanger.PokemonVadammt.prototype.changeTextMenuVisibility = function (visible) {
+    if(visible === true) {
+        // Then hide other opened menus.
+        this.changeAttackMenuVisibility(false);
+    }
+
+    var textMenuParts = [
+        //
+        this.textMenuBorder,
+        this.textMenuText
+    ];
+
+    textMenuParts.forEach(function (menuPart) {
+        menuPart.visible = visible;
+    });
+};
+
 JackDanger.PokemonVadammt.prototype.processAttack = function (attacker, victim, attack) {
 
     // Process attack (values)
     victim.hp -= attack.dmg;
-
-    // Visualize the attack.
-    updateIndicator(this);
+    var descStr = attacker.name + " greift " + victim.name + " an!\n"
+        + attack.name + " verursacht " + attack.dmg + " Schaden.";
+    var self = this;
 
     logInfo(this.Fighters.toString(attacker) + " attacked " + this.Fighters.toString(victim) + "; ATK: " + attack.name + " (dmg: " + attack.dmg + ").");
 
-    function updateIndicator(self) {
+    this.showMenuText(descStr,                          // Show description
+    function () { updateIndicator(self, attacker); });  // Then visualize the attack.
+
+    function updateIndicator(self, attacker) {
         var indicator = findVictimIndicator(self);
 
         // Resize indicator and change state after that.
@@ -481,6 +534,41 @@ JackDanger.PokemonVadammt.prototype.createAttackMenu = function (xPos, yPos, wid
     function menuTextByPosition(menuItemPosition) {
         return menuEntries[menuItemPosition.id];
     }
+};
+
+/**
+ *
+ * @param xPos
+ * @param yPos
+ * @param width
+ * @param height
+ * @param textStr Die Zeichenbreite des Menüs ist 39±1.
+ * @param fontSize
+ * @param borderWidth
+ */
+JackDanger.PokemonVadammt.prototype.createTextMenu = function (xPos, yPos, width, height, textStr, fontSize, borderWidth) {
+    if (fontSize === undefined) fontSize = this.fontSize;
+    if (borderWidth === undefined) borderWidth = 4;
+
+    var newWidth = width - borderWidth;
+    var newHeight = height - borderWidth;
+
+    // Create border
+    this.textMenuBorder = this.add.graphics(0, 0);
+    this.textMenuBorder.lineStyle(borderWidth, 0x000, 1);
+    this.textMenuBorder.drawRect(xPos, yPos, newWidth, newHeight);
+
+    // Set new (x,y) to inside the border.
+    var newXPos = xPos + borderWidth;
+    var newYPos = yPos + borderWidth;
+
+    var textYOffset = fontSize * 0.5;
+
+    // Add Text
+    this.textMenuString = textStr;
+    this.textMenuText = game.add.bitmapText(newXPos, newYPos + textYOffset, "pokemon_font", textStr, fontSize);
+    this.textMenuText.anchor.x = 0;
+    this.textMenuText.anchor.y = 0;
 };
 
 JackDanger.PokemonVadammt.prototype.createAttackInfo = function (xPos, yPos, width, height, menuEntries, fontSize, borderWidth) {
