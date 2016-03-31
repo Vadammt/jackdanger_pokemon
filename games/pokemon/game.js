@@ -154,7 +154,7 @@ JackDanger.PokemonVadammt.prototype.mycreate = function () {
 
 JackDanger.PokemonVadammt.prototype.addStuff = function () {
     // Jack Danger sprite
-    this.player = this.add.sprite(game.width * 0.25, game.height * 0.75, "jackdanger");
+    this.player = this.add.sprite(game.width * 0.25, game.height * 0.5, "jackdanger");
     this.player.scale.setTo(3, 3);
     this.player.x -= this.player.width * 0.5;
     this.player.y -= this.player.height * 0.5;
